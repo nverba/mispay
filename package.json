@@ -1,0 +1,19 @@
+{
+  "name": "mispay.js",
+  "version": "0.0.1",
+  "description": "GapiPay wrapper",
+  "homepage": "https://github.com/makeitsocial/mispay.js",
+  "author": "Make it Social <ted@makeitsocial.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/makeitsocial/mispay.js.git"
+  },
+  "engines": {
+    "node": ">= v0.10.33"
+  },
+  "main": "lib/mispay.js",
+  "devDependencies": {
+    "chai": "~1.9.1",
+    "mocha": "~1.20.1"
+  },
+}

@@ -1,20 +1,40 @@
-
-
 # mispay.js
 
+## Installation
 
+    npm install makeitsocial/mispay.js
 
-## Usage
+## Documentation
 
+See https://gapipay.appspot.com/developer
+
+## Set up
+
+In the server.js or app.js file, add the following.
+
+```js
+var mispay = require('mispay');
+
+mispay.config({
+	username: '...',
+	password: '...'
+});
+``` 
+
+## Front-end
+
+Reference the mpay.js or mpay.min.js in the html page as front end. Configure static path in express:
+
+```js
+server.use('/mispay', express.static(mispay.staticPath));
+```
+
+In the browser:
+```html
+<script src="/mispay/js/mpay.min.js"></script>
+```
 
 
 ## Developing
 
-
-
-### Tools
-
-Created with [Nodeclipse](https://github.com/Nodeclipse/nodeclipse-1)
- ([Eclipse Marketplace](http://marketplace.eclipse.org/content/nodeclipse), [site](http://www.nodeclipse.org))   
-
-Nodeclipse is free open-source project that grows with your contributions.
+    npm test
