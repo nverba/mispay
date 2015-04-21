@@ -1,0 +1,16 @@
+logs
+*.log
+*~
+*.~
+*.swp
+.DS_Store
+pids
+results
+build/Release
+node_modules
+npm-debug.log
+.project
+.settings
+/nbproject/private/
+.tern-project
+.jshintrc
