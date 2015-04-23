@@ -46,6 +46,30 @@ and 'ccs.js' for country codes if necessary.
 <script src="/mispay/js/css.js"></script>
 ```
 
+### Set up mangopay
+
+In the ng-controller function, configure mangopay access and pass in $scope:
+```js
+MisPay.MangoPay.setup($scope, mangoPay, 'client_id', false); //or true if live
+```
+Then the following $scoped functions will be available for use:
+    Payment.request()
+    Payment.pay()
+    Payment.preauth()
+    Payment.prepay()
+    Card.register()
+    Card.update()
+
+Implement the following $scoped functions to be called back by the above functions with returned data:
+```js
+// onRequest will be called from Request.post with returned data from GapiPay:
+$scope.onRequest = function(data){
+	if (data.pay) {
+		console.log('checkout was done
+};
+$scope.onCheckout
+```
+
 ### The pay button
 This is a demo of doing a direct card payment.
 ```html
