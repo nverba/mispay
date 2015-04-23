@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.2.4/mocha.min.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.2.4/mocha.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/chai/2.2.0/chai.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js"></script>
+	<script src="../lib/public/js/mispay-ng.js"></script>
+	<script>mocha.setup('bdd')</script>
+</head>
+<body>
+	<div id="mocha"></div>
+	
+<script>
+var expect = chai.expect;
+
+describe('Basic components',function(){
+	it('MANGO_CB_URL exists', function(){
+		expect(MANGO_CB_URL).to.contain("//mispay/mango/callback");
+	});
+	it('MisPayClass exists', function(){
+		expect(MisPayClass).to.be.a('function');
+	});
+	it('MisPayCtr exists', function(){
+		expect(MisPayCtr).to.be.a('function');
+	});
+	it('MisPayClass objects exist', function(){
+		var ms=['Request','Card','Payment','MangoPay'],
+			mpc = new MisPayClass();
+		for(var i in ms){
+			expect(mpc[ms[i]]).to.be.a('object');
+		}
+	});
+	it('MisPayCtr $scope objects exist',function(){
+		var scope = {};
+		var mpc = MisPayCtr(scope); //leaving mangopay, client etc
+		var ms=['Payment','Card'];
+		for(var i in ms){
+			expect(scope[ms[i]]).to.be.a('object');
+		}
+	});
+});
+
+mocha.run();
+</script>
+
+</body>
+</html>
