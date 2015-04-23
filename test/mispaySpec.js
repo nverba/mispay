@@ -250,16 +250,27 @@ describe('mispay plain object', function(){
 			expect(mispay.staticPath).to.contain('/lib/public');
 		});
 	});
-//	describe('get method', function(){
-//		it('should get from https', function(done){
-//			mispay.get('agents', function(r){
-//				//console.log('response:',r);
-//				expect(r.error).to.equal("Unauthorized");
-//				done();
-//			}, function(e){
-//				console.log('error:',e);
-//				done();
-//			});
-//		});
-//	});
+});
+
+var MockRouter = {
+	endpoints: {},
+	post: function(path, func){
+		MockRouter.endpoints[path] = 'post';
+	},
+	get: function(path, func){
+		MockRouter.endpoints[path] = 'get';
+	}
+};
+
+describe('mispay router',function(){
+	it('should set up these endpoints',function(){
+		mispay.route(MockRouter);
+		var es = {'request':'post','checkout':'get','payin/:pid/regcard':'get','payin/:pid/card':'post',
+				'payin/:pid/pay':'post','payin/:pid/preauth':'post','payin/:pid/prepay':'post',
+				'payin/:pid/transfer':'post','mango/callback':'get'};
+		for(var p in es){
+			var ep = '/mispay/'+p, m = es[p];
+			expect(MockRouter.endpoints[ep]).to.equal(m);
+		}
+	});
 });

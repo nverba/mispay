@@ -57,18 +57,36 @@ Then the following $scoped functions will be available for use:
     Payment.pay()
     Payment.preauth()
     Payment.prepay()
+    Card.preRegister()
     Card.register()
-    Card.update()
 
 Implement the following $scoped functions to be called back by the above functions with returned data:
 ```js
 // onRequest will be called from Request.post with returned data from GapiPay:
-$scope.onRequest = function(data){
-	if (data.pay) {
-		console.log('checkout was done
-};
-$scope.onCheckout
+$scope.mispayCallback(caller, status, data){
+	console.log(caller, status, data);
+	if (status == 'error'){
+		return;
+	} else if (status == 'redirect') {
+		//show iframe to allow user enter 3D secure secret
+	} else if (caller == 'Payment.request'){
+		if (data.rid) {
+			//success, show data.pays list to allow register card and pay
+		}
+	}
+}
 ```
+Status tags:
+    ok : request successful
+    error : request has an error
+    redirect : for 3D secure mode, requires redirection to 3D secure page
+Call names:
+	Payment.request
+	Payment.pay
+	Payment.preauth
+	Payment.prepay
+	Card.preRegister
+	Card.register
 
 ### The pay button
 This is a demo of doing a direct card payment.
