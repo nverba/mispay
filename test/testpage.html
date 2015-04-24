@@ -30,6 +30,8 @@ describe('Basic components',function(){
 		for(var i in ms){
 			expect(mpc[ms[i]]).to.be.a('object');
 		}
+		expect(mpc.doGet).to.be.a('function');
+		expect(mpc.doPost).to.be.a('function');
 	});
 	it('MisPayCtr $scope objects exist',function(){
 		var scope = {};
@@ -38,6 +40,240 @@ describe('Basic components',function(){
 		for(var i in ms){
 			expect(scope[ms[i]]).to.be.a('object');
 		}
+		var pms=['request','checkout','pay','preauth','prepay'];
+		for(var i in pms){
+			expect(scope.Payment).to.have.property(pms[i]);
+		}
+		var cms=['preRegister','register','cancel'];
+		for(var i in cms){
+			expect(scope.Card).to.have.property(cms[i]);
+		}
+	});
+});
+
+var Mock$HttpRet = function(call, data){
+	return {
+		success: function(cb){
+			if (call=='success') cb(data);
+			return this;
+		},
+		error: function(cb){
+			if (call=='error') cb(data);
+		},
+	};
+};
+function Mock$Http(call, data){
+	var func = function(obj){
+		return new Mock$HttpRet(call, data || obj.data);
+	};
+	func.get = function(url){
+		return new Mock$HttpRet(call, data || url);
+	};
+	return func;
+}
+
+describe('Mock MisPayClass', function(){
+	var mpc1 = new MisPayClass(Mock$Http('success'));
+	it('doGet success', function(){
+		mpc1.doGet('/mispay/test', function(d){
+			expect(d).to.equal('/mispay/test');
+		});
+	});
+	it('doGet fail', function(){
+		var mpce = new MisPayClass(Mock$Http('error','er'));
+		mpce.doGet('/mispay/whatever', function(d){
+			expect(d).to.have.property('error','er');
+		});
+	});
+	it('doPost success', function(){
+		var mpc = new MisPayClass(Mock$Http('success'));
+		mpc.doPost('/mispay/post', {id:1}, function(d){
+			expect(d).to.have.property('id',1);
+		});
+	});
+	it('doPost fail', function(){
+		var mpe = new MisPayClass(Mock$Http('error','er2'));
+		mpe.doPost('/mispay/whatever',{id:2},function(d){
+			expect(d).to.have.property('error','er2');
+		});
+	});
+	it('MangoPay.setup', function(){
+		var mango = {cardRegistration:{}};
+		var scope = {};
+		var mpc = new MisPayClass(Mock$Http('success'));
+		mpc.MangoPay.setup(scope, mango, 'client');
+		expect(mango.cardRegistration.baseURL).to.equal(MANGOPAY_SANDBOX);
+		expect(mango.cardRegistration.clientId).to.equal('client');
+		expect(scope).to.have.property('Payment');
+	});
+});
+
+function createScope(cb){
+	return {
+		mispayCallback: function(caller,status,data){
+			cb(caller, status, data);
+		},
+	}
+}
+
+describe('MisPayCtr Payment', function(){
+	var mango = {cardRegistration:{}};
+	it('request success', function(done){
+		var mpp = new MisPayClass(Mock$Http('success',{id:12345}));
+		var scope = createScope(
+			function(c, s, d){
+				expect(d).to.have.property('id',12345);
+				done();
+			});
+		mpp.MangoPay.setup(scope, mango, 'client');
+		scope.basket = {buyer:{xid:1},items:[{sid:2,currency:'GBP',amount:100}]};
+		scope.Payment.request();
+	});
+	it('request fail', function(done){
+		var mp = new MisPayClass(Mock$Http('error','msg'));
+		var scope = createScope(
+			function(c,s,d){
+				expect(d).to.have.property('error','msg');
+				done();
+			});
+		mp.MangoPay.setup(scope,mango,'client');
+		scope.basket = {};
+		scope.Payment.request();
+	});
+	it('pay success', function(done){
+		var pay = {pays:[{pid:'111',usecard:'1'},{pid:'122'}]};
+		var mp = new MisPayClass(Mock$Http('success',pay));
+		var scope = createScope(function(c,s,d){
+			if (c=='Payment.request') return;
+			if(c=='Payment.pay') {
+				expect(s).to.equal('ok');
+				expect(d).to.have.property('Id','123');
+				done();
+			}
+		});
+		var mc = new MisPayCtr(scope, mango, mp);
+		scope.Payment.checkout();
+		var rd = {Status:'SUCCEEDED',Id:'123'};
+		var mp2 = new MisPayClass(Mock$Http('success',rd));
+		mc.setMisPay(mp2);
+		scope.pid = '111';
+		scope.Payment.pay();
+	});
+	it('pay redirect', function(done){
+		var pay = {pays:[{pid:'111'},{pid:'122',usecard:'2'}]};
+		var mp = new MisPayClass(Mock$Http('success',pay));
+		var scope = createScope(function(c,s,d){
+			if (c=='Payment.request') return;
+			if(c=='Payment.pay') {
+				expect(s).to.equal('redirect');
+				expect(d).to.equal('localhost');
+				done();
+			}
+		});
+		var mc = new MisPayCtr(scope, mango, mp);
+		scope.Payment.checkout();
+		var rd = {Status:'CREATED',SecureModeRedirectURL:'localhost',SecureModeNeeded:true};
+		var mp2 = new MisPayClass(Mock$Http('success',rd));
+		mc.setMisPay(mp2);
+		scope.pid = '122';
+		scope.Payment.pay();
+	});
+	it('preauth success', function(done){
+		var pay = {pays:[{pid:'111',usecard:'01'},{pid:'122'}]};
+		var mp = new MisPayClass(Mock$Http('success',pay));
+		var scope = createScope(function(c,s,d){
+			if (c=='Payment.request') return;
+			if(c=='Payment.preauth') {
+				expect(s).to.equal('ok');
+				expect(d).to.have.property('Id','123');
+				done();
+			}
+		});
+		var mc = new MisPayCtr(scope, mango, mp);
+		scope.Payment.checkout();
+		var rd = {Status:'SUCCEEDED',Id:'123'};
+		var mp2 = new MisPayClass(Mock$Http('success',rd));
+		mc.setMisPay(mp2);
+		scope.pid = '111';
+		scope.Payment.preauth();
+	});
+	it('preauth redirect', function(done){
+		var pay = {pays:[{pid:'111'},{pid:'122',usecard:'11'}]};
+		var mp = new MisPayClass(Mock$Http('success',pay));
+		var scope = createScope(function(c,s,d){
+			if (c=='Payment.request') return;
+			if(c=='Payment.preauth') {
+				expect(s).to.equal('redirect');
+				expect(d).to.equal('localhost');
+				done();
+			}
+		});
+		var mc = new MisPayCtr(scope, mango, mp);
+		scope.Payment.checkout();
+		var rd = {Status:'CREATED',SecureModeRedirectURL:'localhost',SecureModeNeeded:true};
+		var mp2 = new MisPayClass(Mock$Http('success',rd));
+		mc.setMisPay(mp2);
+		scope.pid = '122';
+		scope.Payment.preauth();
+	});
+	it('prepay success', function(done){
+		var pay = {pays:[{pid:'111'},{pid:'122'}]};
+		var mp = new MisPayClass(Mock$Http('success',pay));
+		var scope = createScope(function(c,s,d){
+			if (c=='Payment.request') return;
+			if(c=='Payment.prepay') {
+				expect(s).to.equal('ok');
+				done();
+			}
+		});
+		var mc = new MisPayCtr(scope, mango, mp);
+		scope.Payment.checkout();
+		var rd = {Status:'SUCCEEDED'};
+		var mp2 = new MisPayClass(Mock$Http('success',rd));
+		mc.setMisPay(mp2);
+		scope.pid = '111';
+		pay.pays[0].preauth = {Id:'101',DebitedFunds:{Amount:200}};
+		scope.Payment.prepay();
+	});
+});
+
+describe('Card registration', function(){
+	it('pre-register', function(done){
+		var scope = createScope(function(c,s,d){
+			expect(d).to.have.property('Id');
+			done();
+		});
+		scope.pid = '111';
+		var rd = {Status:'CREATED',Id:'111'};
+		var mp = new MisPayClass(Mock$Http('success',rd));
+		var mc = new MisPayCtr(scope, {}, mp);
+		scope.Card.preRegister();
+	});
+	it('register', function(done){
+		var mango = {
+			cardRegistration:{
+				registerCard: function(card,cb,ce){
+					cb(card);
+				},
+				init: function(d){}
+			}
+		};
+		var scope = createScope(function(c,s,d){
+			if (c=='Card.preRegister') return;
+			expect(d).to.have.property('CardId');
+			done();
+		});
+		var rd = {Status:'CREATED',Id:'111',CardId:'1',AccessKey:'a1',PreregistrationData:'x',CardRegistrationUrl:'h'};
+		var mp = new MisPayClass(Mock$Http('success',rd));
+		var mc = new MisPayCtr(scope, mango, mp);
+		scope.pid = '111';
+		scope.Card.preRegister();
+		scope.card = {
+			cardNumber: '1234567890',
+			cardExpirationDate:'1515',
+			cardCvx:'123',
+		};
+		scope.Card.register();
 	});
 });
 

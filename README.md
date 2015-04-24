@@ -88,14 +88,14 @@ Call names:
 	Card.preRegister
 	Card.register
 
-### The pay button
-This is a demo of doing a direct card payment.
+### Direct payment
+This is a demo of doing a direct card payment. 
 ```html
 <button ng-click="pay()">Pay</button>
 ```
-
+Before calling GapiPay to request a payment transaction, the basket dataset must be prepared as follows:
 ```js
-var basket = {
+var Basket = {
 	id: '1234', //optional
 	gid: '1', //optional
 	buyer: {
@@ -110,31 +110,37 @@ var basket = {
 		}
 	]
 };
-//in ngController:
+//if $scope.basket if predefined, simply use ng-click="Payment.request()" on the button element.
 $scope.pay = function(){
-	MisPay.Request.post(basket, function(r){
-		if (r.id) {
-			$scope.requestId = r.id;
-			setTimeout(checkout, 200); //leave some time for the gapipay server
-		} else {
-			alert(r);
-		}
-	});
+	$scope.basket = Basket;
+	$scope.Payment.request();
 };
-function checkout(){
-	MisPay.Request.checkout($scope.requestId, function(pay){
-		if (pay.pays && pay.pays.length > 0){
-			$scope.payment = pay; //show user the basket and let them pay one by one
-		} else if (pay.pays.length == 0){
-			setTimeout(checkout, 200); //poll until the request handled.
-		} else {
-			alert(pay);
-		}
-	});
-}
 ```
+A successful request will return a list of payment entries each with a different currency and a list of registered card if any.
+If no card is registered before, show a register card button to allow registering a new card.(see Card section below).
 
-### Pre-authorize a card payment
+### Pre-authorize a payment
+
+There're two steps for a pre-authorized payment, the function in $scope is Payment.preauth(). The pre-authorization is similar to direct payment. The second step is Payment.prepay() with a pre-authorization Id from the first step.
+
+## Card registration
+
+* Allow user to enter card details
+    FirstName, LastName, Email, Birthday, Nationality, CountryOfResidence
+    Currency to register
+* On click of Register button:
+```js
+    $scope.Card.preRegister($scope.pid, function(rd){
+    	if (rd.Status=='CREATED'){
+    		$scope.Card.register(card, function(rd){
+    			if (rd.CardId){
+    				//successful, add card to the selection list, and set to default
+    			}
+    		});
+    	}
+    });
+```
+In case we want to let the user confirm register, we can call preRegister first and show a confirm button, and then call register on clicking it.
 
 ## Developing
 
@@ -142,3 +148,5 @@ To test, install mocha and chai
 	npm install -g mocha
 	npm install chai --save-dev
     npm test
+
+mispay-ng.js can be tested in the browser, open test/testpage.html to see the result.
