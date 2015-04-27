@@ -178,6 +178,19 @@ describe('MisPayCtr Payment', function(){
 		scope.pid = '122';
 		scope.Payment.pay();
 	});
+	it('repay success', function(done){
+		var scope = createScope(function(c,s,d){
+			expect(s,'ok');
+			done();
+		});
+		var mp = new MisPayClass(Mock$Http('success',{pays:[{pid:'111'}]}));
+		var mc = new MisPayCtr(scope, mango, mp);
+		scope.Payment.checkout();
+		var rd = {Status:'SUCCEEDED',Id:'123'};
+		var mp2 = new MisPayClass(Mock$Http('success',rd));
+		mc.setMisPay(mp2);
+		scope.Payment.repay('111','2');
+	});
 	it('preauth success', function(done){
 		var pay = {pays:[{pid:'111',usecard:'01'},{pid:'122'}]};
 		var mp = new MisPayClass(Mock$Http('success',pay));
@@ -196,6 +209,19 @@ describe('MisPayCtr Payment', function(){
 		mc.setMisPay(mp2);
 		scope.pid = '111';
 		scope.Payment.preauth();
+	});
+	it('repreauth success', function(done){
+		var scope = createScope(function(c,s,d){
+			expect(s,'ok');
+			done();
+		});
+		var mp = new MisPayClass(Mock$Http('success',{pays:[{pid:'111'}]}));
+		var mc = new MisPayCtr(scope, mango, mp);
+		scope.Payment.checkout();
+		var rd = {Status:'SUCCEEDED',Id:'123'};
+		var mp2 = new MisPayClass(Mock$Http('success',rd));
+		mc.setMisPay(mp2);
+		scope.Payment.repreauth('111','2');
 	});
 	it('preauth redirect', function(done){
 		var pay = {pays:[{pid:'111'},{pid:'122',usecard:'11'}]};
