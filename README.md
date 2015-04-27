@@ -32,7 +32,7 @@ mispay.route(router);
 To allow referecing the scripts, configure a static directory on express:
 
 ```js
-router.use('/mispay/js', express.static(mispay.staticPath));
+router.use('/mispay', express.static(mispay.staticPath));
 ```
 
 Reference the mispay-ng.js, the AngularJs-based script, in the html page:
@@ -63,7 +63,7 @@ Then the following $scoped functions will be available for use:
 Implement the following $scoped functions to be called back by the above functions with returned data:
 ```js
 // onRequest will be called from Request.post with returned data from GapiPay:
-$scope.mispayCallback(caller, status, data){
+$scope.mispayCallback = function(caller, status, data){
 	console.log(caller, status, data);
 	if (status == 'error'){
 		return;

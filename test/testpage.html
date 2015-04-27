@@ -261,6 +261,7 @@ describe('Card registration', function(){
 		var scope = createScope(function(c,s,d){
 			if (c=='Card.preRegister') return;
 			expect(d).to.have.property('CardId');
+			expect(scope.getPaymentOptions().pays[0].cards).to.have.length(1);
 			done();
 		});
 		var rd = {Status:'CREATED',Id:'111',CardId:'1',AccessKey:'a1',PreregistrationData:'x',CardRegistrationUrl:'h'};
@@ -273,6 +274,7 @@ describe('Card registration', function(){
 			cardExpirationDate:'1515',
 			cardCvx:'123',
 		};
+		mc.setPayment({pays:[{pid:'111'}]});
 		scope.Card.register();
 	});
 });
