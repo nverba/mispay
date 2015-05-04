@@ -64,11 +64,11 @@ var Mock$HttpRet = function(call, data){
 };
 function Mock$Http(call, data){
 	var func = function(obj){
-		return new Mock$HttpRet(call, data || obj.data);
+		return new Mock$HttpRet(call, data || obj.data || obj.url);
 	};
-	func.get = function(url){
+	/*func.get = function(url){
 		return new Mock$HttpRet(call, data || url);
-	};
+	};*/
 	return func;
 }
 
