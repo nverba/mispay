@@ -13,7 +13,7 @@ See https://gapipay.appspot.com/developer
 In the server.js or app.js file, import the module with a client username and password.
 
 ```js
-var mispay = require('mispay.js')('username','password');
+var mispay = require('mispay.js')({username:'..',password:'..',hashkey:'..'});
 ``` 
 
 ## Use express router
@@ -107,6 +107,7 @@ var Basket = {
 			item: 'product-1',
 			currency: 'GBP',
 			amount: 10000, //in cents
+			hash: '' //from PAPI.reserve
 		}
 	]
 };

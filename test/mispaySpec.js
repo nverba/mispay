@@ -120,7 +120,8 @@ describe('mispay http', function(){
 					return {status:'OK',id:'3'};
 				}
 			});
-			var data = {id:'1',buyer:{xid:'111'},items:[{sid:'2',currency:'EUR',amount:10000}]};
+			mispay.config({hashkey:'ABCD'});
+			var data = {id:'1',buyer:{xid:'111'},items:[{sid:'2',currency:'EUR',amount:10000,hash:'Y0MNqZIY/5BX+UVIPYDClwvmDsWnqpwn31swYsH+tD4='}]};
 			mispay.request(data, function(r){
 				expect(r).to.exist;
 				expect(r.status).to.equal('OK');
@@ -248,6 +249,14 @@ describe('mispay plain object', function(){
 		});
 		it('should have staticPath', function(){
 			expect(mispay.staticPath).to.contain('/lib/public');
+		});
+		it('validHash', function(){
+			mispay.config({hashkey:'ABCD'});
+			var basket = {items:[{sid:'111',currency:'GBP',amount:100},{sid:'2',currency:'EUR',amount:10000}]};
+			expect(mispay.validHash(basket)).to.be.false;
+			basket.items[0].hash = 'YO2+uS78ryTzzzW8IYT5HC+dGVhVTHht8e/QijZVCqs=';
+			basket.items[1].hash = 'Y0MNqZIY/5BX+UVIPYDClwvmDsWnqpwn31swYsH+tD4=';
+			expect(mispay.validHash(basket)).to.be.true;
 		});
 	});
 });
