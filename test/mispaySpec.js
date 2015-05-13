@@ -1,5 +1,5 @@
 var expect = require('chai').expect;
-var mispay = require('../lib/mispay.js')("user1","pass1");
+var mispay = require('../lib/mispay.js')({username:"user1",password:"pass1"});
 
 /**
  * MockHttpServe({
