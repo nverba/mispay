@@ -6,12 +6,39 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/chai/2.2.0/chai.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.min.js"></script>
 	<script src="../lib/public/js/mispay-ng.js"></script>
+	<script src="/js/mispay-ng.js"></script>
 	<script>mocha.setup('bdd')</script>
 </head>
-<body>
+<body >
 	<div id="mocha"></div>
 	
+	<div style="padding-bottom:20px">Manual Test Upload KYC:
+		<form action="/mispay/kyc" method="post" enctype="multipart/form-data">
+			<input type="text" name="bid" value="5073368378245120">
+			<select name="type">
+				<option value="IDENTITY_PROOF" selected>Proof of identity</option>
+				<option value="REGISTRATION_PROOF">Proof of registration</option>
+				<option value="ARTICLES_OF_ASSOCIATION">Articles of association</option>
+				<option value="SHAREHOLDER_DECLARATION">Shareholder declaration</option>
+			</select>
+			<input type="file" name="file">
+			<button>Upload</button>
+		</form>
+	</div>
+	
 <script>
+/*angular.module('TestApp',['mispay'])
+.controller('UploadCtr',['$scope','MisPay', function($scope,MisPay){
+	$scope.bid = '5073368378245120';
+	$scope.type = 'IDENTITY_PROOF';
+	$scope.submit = function(){
+		console.log('$scope.file:',$scope.file);
+		MisPay.KycDocument.upload($scope.bid, $scope.type, $scope.file, function(data){
+			console.log('KycDocument.upload return:',data);
+		});
+	};
+}]);*/
+
 var expect = chai.expect;
 
 describe('Basic components',function(){

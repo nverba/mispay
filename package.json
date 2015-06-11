@@ -13,10 +13,16 @@
   },
   "main": "lib/mispay.js",
   "devDependencies": {
+    "body-parser": "^1.12.4",
     "chai": "~1.9.1",
-    "mocha": "~1.20.1"
+    "express": "^4.12.4",
+    "mocha": "~1.20.1",
+    "multer": "^0.1.8"
   },
   "scripts": {
-	"test": "mocha"
+    "test": "mocha"
+  },
+  "dependencies": {
+    "request": "^2.57.0"
   }
 }
