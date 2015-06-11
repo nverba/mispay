@@ -5,10 +5,10 @@ var bodyParser = require('body-parser');
 var multer = require('multer');
 
 var mispay = require('../lib/mispay.js')({
-    username: 'MakeitSocial',
-    password: 'MiSv2.0wBFBin2019',
-    hashkey: 'Mjk4Y2ZkZjctYjVkYi00ZTQzLWI5ZDktMDFiZGJhMDFhMmQx',
-    GapiHashKey: 'bcd7a07e61cc495bbf04de78085f4a6d'
+    username: '',
+    password: '',
+    hashkey: '',
+    GapiHashKey: ''
 });
 var router = express();
 var server = http.createServer(router);
