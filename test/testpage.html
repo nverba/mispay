@@ -330,6 +330,20 @@ describe('Card registration', function(){
 		mc.setPayment({pays:[{pid:'111'}]});
 		scope.Card.register();
 	});
+	it('disable card', function(done){
+		var scope = createScope(function(c,s,d){
+			done();
+		});
+		scope.pid = '111';
+		var rd = {Active:"false"};
+		var mp = new MisPayClass(Mock$Http('success', rd));
+		var mc = new MisPayCtr(scope, {}, mp);
+		scope.Card.disable('u1','c1',function(d){
+			//console.log(d);
+			expect(d).to.have.property('Active','false');
+			done();
+		});
+	});
 });
 
 mocha.run();
