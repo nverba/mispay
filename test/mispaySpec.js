@@ -276,7 +276,7 @@ describe('mispay router',function(){
 		mispay.route(MockRouter);
 		var es = {'request':'post','checkout':'get','payin/:pid/regcard':'get','payin/:pid/card':'post',
 				'payin/:pid/pay':'post','payin/:pid/preauth':'post','payin/:pid/prepay':'post',
-				'payin/:pid/transfer':'post','mango/callback':'get'};
+				'payin/:pid/transfer':'post','mango/callback':'get','buyer/:uid/card/:cid/disable':'put'};
 		for(var p in es){
 			var ep = '/mispay/'+p, m = es[p];
 			expect(MockRouter.endpoints[ep]).to.equal(m);
