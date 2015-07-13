@@ -12,11 +12,14 @@ var mispay = require('../lib/mispay.js')({
 });
 var router = express();
 var server = http.createServer(router);
+//router.use(express.bodyParser( { keepExtensions: true, uploadDir: '/tmp' } ));
+// router.use(bodyParser( { keepExtensions: true, uploadDir: '/tmp' } ));
 
 router.use(express.static('lib/public'));
 router.use(express.static('test'));
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
+
 router.use(multer({dest:'/tmp'})); // for parsing multipart/form-data
 
 mispay.route(router);
